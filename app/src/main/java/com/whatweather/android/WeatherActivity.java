@@ -1,5 +1,6 @@
 package com.whatweather.android;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.Image;
@@ -24,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.util.Util;
 import com.whatweather.android.gson.Forecast;
 import com.whatweather.android.gson.Weather;
+import com.whatweather.android.service.AutoUpdateService;
 import com.whatweather.android.util.HttpUtil;
 import com.whatweather.android.util.Utility;
 
@@ -176,6 +178,7 @@ public class WeatherActivity extends AppCompatActivity
                             editor.apply();
                             mWeatherId = weather.basic.weatherId;
                             showWeatherInfo(weather);
+
                         } else
                         {
                             Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
@@ -234,6 +237,9 @@ public class WeatherActivity extends AppCompatActivity
         sportText.setText(sport);
         travelText.setText(travel);
         weatherLayout.setVisibility(View.VISIBLE);
+
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        startService(intent);
     }
 
     /**
