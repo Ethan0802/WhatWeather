@@ -3,10 +3,8 @@ package com.whatweather.android;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,12 +20,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.util.Util;
+import com.google.gson.Gson;
+import com.whatweather.android.gson.Bing;
 import com.whatweather.android.gson.Forecast;
 import com.whatweather.android.gson.Weather;
 import com.whatweather.android.service.AutoUpdateService;
 import com.whatweather.android.util.HttpUtil;
 import com.whatweather.android.util.Utility;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -126,7 +128,7 @@ public class WeatherActivity extends AppCompatActivity
             Glide.with(this).load(bingPic).into(bingPicImg);
         } else
         {
-            loadBingPic();
+            myLoadBingPic();
         }
 
         navButton.setOnClickListener(new View.OnClickListener()
@@ -188,7 +190,7 @@ public class WeatherActivity extends AppCompatActivity
                 });
             }
         });
-        loadBingPic();
+        myLoadBingPic();
     }
 
     /**
@@ -197,7 +199,7 @@ public class WeatherActivity extends AppCompatActivity
     private void showWeatherInfo(Weather weather)
     {
         String cityName = weather.basic.cityName;
-        String updateTime = weather.basic.update.updateTime.split(" ")[1] + "刷新";
+        String updateTime = weather.basic.update.updateTime.split(" ")[1] + "更新";
         String degree = weather.now.temperature + "℃";
         String weatherInfo = weather.now.more.info;
         titleCity.setText(cityName);
@@ -243,12 +245,45 @@ public class WeatherActivity extends AppCompatActivity
     }
 
     /**
-     * 加载必应每日一图
+     * 加载必应每日一图(调用郭霖接口)
      */
-    private void loadBingPic()
+//    private void loadBingPic()
+//    {
+//        String requestBingPic = "http://guolin.tech/api/bing_pic";
+//        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback()
+//        {
+//            @Override
+//            public void onFailure(Call call, IOException e)
+//            {
+//                e.printStackTrace();
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) throws IOException
+//            {
+//                final String bingPic = response.body().string();
+//                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+//                editor.putString("bing_pic", bingPic);
+//                editor.apply();
+//                runOnUiThread(new Runnable()
+//                {
+//                    @Override
+//                    public void run()
+//                    {
+//                        Glide.with(WeatherActivity.this).load(bingPic).into(bingPicImg);
+//                    }
+//                });
+//            }
+//        });
+//    }
+
+    /**
+     * 加载必应每日一图(解析必应每日图片JSON数据)
+     */
+    private void myLoadBingPic()
     {
-        String requestBingPic = "http://guolin.tech/api/bing_pic";
-        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback()
+        final String jsonBingPic = "http://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1";//Bing中文网提供的每日图片的JSON数据Url
+        HttpUtil.sendOkHttpRequest(jsonBingPic, new Callback()
         {
             @Override
             public void onFailure(Call call, IOException e)
@@ -259,18 +294,28 @@ public class WeatherActivity extends AppCompatActivity
             @Override
             public void onResponse(Call call, Response response) throws IOException
             {
-                final String bingPic = response.body().string();
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                editor.putString("bing_pic", bingPic);
-                editor.apply();
-                runOnUiThread(new Runnable()
+                final String responseText = response.body().string();
+                try
                 {
-                    @Override
-                    public void run()
+                    String bingContent = new JSONObject(responseText).toString();
+                    Bing bing = new Gson().fromJson(bingContent, Bing.class);
+                    final String bingPic = "http://cn.bing.com" + bing.imgs.get(0).url;
+
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                    editor.putString("bing_pic", bingPic);
+                    editor.apply();
+                    runOnUiThread(new Runnable()
                     {
-                        Glide.with(WeatherActivity.this).load(bingPic).into(bingPicImg);
-                    }
-                });
+                        @Override
+                        public void run()
+                        {
+                            Glide.with(WeatherActivity.this).load(bingPic).into(bingPicImg);
+                        }
+                    });
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
     }
