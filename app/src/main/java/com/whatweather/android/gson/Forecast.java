@@ -27,7 +27,9 @@ public class Forecast
     public class More
     {
         @SerializedName("txt_d")
-        public String info;
+        public String dayInfo;
+        @SerializedName("txt_n")
+        public String nightInfo;
     }
 
     public Wind wind;

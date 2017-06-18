@@ -208,17 +208,28 @@ public class WeatherActivity extends AppCompatActivity
         weatherInfoText.setText(weatherInfo);
 
         forecastLayout.removeAllViews();
-        for (Forecast forecast : weather.forecastList)
+        //for (Forecast forecast : weather.forecastList)
+        String[] dateStr = {"今天", "明天", "后天"};
+        for (int i = 0; i < 3; i++)
         {
+            Forecast forecast = weather.forecastList.get(i);
             View view = LayoutInflater.from(this).inflate(R.layout.forecast_item, forecastLayout, false);
             TextView dateText = (TextView) view.findViewById(R.id.date_text);
             TextView infoText = (TextView) view.findViewById(R.id.info_text);
             TextView scText = (TextView) view.findViewById(R.id.sc_text);
             TextView minText = (TextView) view.findViewById(R.id.min_text);
             TextView maxText = (TextView) view.findViewById(R.id.max_text);
-            dateText.setText(forecast.date);
-            infoText.setText(forecast.more.info);
-            scText.setText(forecast.wind.sc);
+
+            //dateText.setText(forecast.date);
+            dateText.setText(dateStr[i]);
+            //白天夜晚天气转换
+            String dayInfo = forecast.more.dayInfo;
+            String nightInfo = forecast.more.nightInfo;
+            if (dayInfo.equals(nightInfo))
+                infoText.setText(dayInfo);
+            else
+                infoText.setText(dayInfo + "转" + nightInfo);
+            scText.setText(forecast.wind.sc);//风向
             minText.setText(forecast.temperature.min + "℃");
             maxText.setText(forecast.temperature.max + "℃");
             forecastLayout.addView(view);

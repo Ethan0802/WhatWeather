@@ -43,6 +43,15 @@
                     <include layout="@layout/aqi"/>
 
                     <include layout="@layout/suggestion"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:gravity="center"
+                        android:text="数据来源和风天气"
+                        android:textColor="#fff"/>
+
                 </LinearLayout>
             </ScrollView>
         </android.support.v4.widget.SwipeRefreshLayout>
