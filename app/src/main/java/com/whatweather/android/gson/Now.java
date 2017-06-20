@@ -10,6 +10,8 @@ public class Now
 {
     @SerializedName("tmp")
     public String temperature;
+    @SerializedName("hum")
+    public String humidity;
     @SerializedName("cond")
     public More more;
 

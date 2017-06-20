@@ -44,10 +44,14 @@ public class WeatherActivity extends AppCompatActivity
     private TextView titleUpdateTime;
     private TextView degreeText;
     private TextView weatherInfoText;
+
+    private TextView airText;
+    private TextView humidityText;
+
     private LinearLayout forecastLayout;
-    private TextView qualityText;
     private TextView aqiText;
     private TextView pm25Text;
+    private TextView pm10Text;
     private TextView dressText;
     private TextView sportText;
     private TextView travelText;
@@ -81,10 +85,14 @@ public class WeatherActivity extends AppCompatActivity
         titleUpdateTime = (TextView) findViewById(R.id.title_updateTime);
         degreeText = (TextView) findViewById(R.id.degree_text);
         weatherInfoText = (TextView) findViewById(R.id.weather_info_text);
+
+        airText = (TextView) findViewById(R.id.weather_air_text);
+        humidityText = (TextView) findViewById(R.id.weather_hum_text);
+
         forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
-        qualityText = (TextView) findViewById(R.id.quality_text);
         aqiText = (TextView) findViewById(R.id.aqi_text);
         pm25Text = (TextView) findViewById(R.id.pm25_text);
+        pm10Text = (TextView) findViewById(R.id.pm10_text);
         dressText = (TextView) findViewById(R.id.dress_text);
         sportText = (TextView) findViewById(R.id.sport_text);
         travelText = (TextView) findViewById(R.id.travel_text);
@@ -180,7 +188,6 @@ public class WeatherActivity extends AppCompatActivity
                             editor.apply();
                             mWeatherId = weather.basic.weatherId;
                             showWeatherInfo(weather);
-
                         } else
                         {
                             Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
@@ -200,12 +207,16 @@ public class WeatherActivity extends AppCompatActivity
     {
         String cityName = weather.basic.cityName;
         String updateTime = weather.basic.update.updateTime.split(" ")[1] + "更新";
+        //String updateTime = weather.basic.update.updateTime + "更新";
         String degree = weather.now.temperature + "℃";
         String weatherInfo = weather.now.more.info;
+        String humidity = weather.now.humidity;
+
         titleCity.setText(cityName);
         titleUpdateTime.setText(updateTime);
         degreeText.setText(degree);
         weatherInfoText.setText(weatherInfo);
+        humidityText.setText(humidity + "%");
 
         forecastLayout.removeAllViews();
         //for (Forecast forecast : weather.forecastList)
@@ -230,16 +241,26 @@ public class WeatherActivity extends AppCompatActivity
             else
                 infoText.setText(dayInfo + "转" + nightInfo);
             scText.setText(forecast.wind.sc);//风向
-            minText.setText(forecast.temperature.min + "℃");
+            minText.setText(forecast.temperature.min);
             maxText.setText(forecast.temperature.max + "℃");
             forecastLayout.addView(view);
         }
 
         if (weather.aqi != null)
         {
-            qualityText.setText(weather.aqi.aqiCity.quality);
+            String quality = weather.aqi.aqiCity.quality;
+            if (quality.equals("优") || quality.equals("良"))
+            {
+                String newQuality = "空气" + quality;
+                airText.setText(newQuality);//最上方天气概况显示空气质量
+            } else
+            {
+                airText.setText(weather.aqi.aqiCity.quality);
+            }
+
             aqiText.setText(weather.aqi.aqiCity.aqi);
             pm25Text.setText(weather.aqi.aqiCity.pm25);
+            pm10Text.setText(weather.aqi.aqiCity.pm10);
         }
 
         String dress = "穿衣：" + weather.suggestion.dress.info;
